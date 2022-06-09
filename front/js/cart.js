@@ -1,11 +1,12 @@
 let basket      = getBasket();
 let basketOther = [];
+let cart        = document.querySelector(".cart");
 
 // CHECK LENGTH BASKET
 if (basket.length === 0) {
   document.querySelector("h1").textContent = "Votre panier est vide";
-  document.querySelector("section.cart").remove();
-
+  // cart.remove();
+  cart.style.display = "none";
 } else {
 
   fetch("http://localhost:3000/api/products")
@@ -15,7 +16,8 @@ if (basket.length === 0) {
   })
   .catch((e) => {
     console.log(e);
-    document.querySelector("section.cart").remove();
+    // cart.remove();
+    cart.style.display = "none";
     document.querySelector("h1").innerHTML = "<h1>Erreur 404<br><br>Ressource non trouvée</h1>";
   });
 }
@@ -183,7 +185,8 @@ function removeFromBasket(product, articleCartItem) {
 
   if (basket.length === 0) {
     document.querySelector("h1").textContent = "Votre panier est vide";
-    document.querySelector("section.cart").remove();
+    // cart.remove();
+    cart.style.display = "none";
   }
 }
 
@@ -275,7 +278,7 @@ form.email.addEventListener("input", () => {
     email.style.backgroundColor = colorTrue;
     document.querySelector("#emailErrorMsg").textContent = "";
   }else{
-    document.querySelector("#emailErrorMsg").textContent = "Email Non Valide"
+    document.querySelector("#emailErrorMsg").textContent = "Email Non Valide";
     email.style.backgroundColor = colorFalse;
   }
 })

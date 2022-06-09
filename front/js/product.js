@@ -21,12 +21,12 @@ let product = {
 // CREATE Item
 function createItem(data) {
   // SELECTED OR CREATE ELEMENT
-  let itemImage = document.querySelector('.item__img');
-  let img       = document.createElement('img');
-  // let title         = document.querySelector('#title');
-  // let price         = document.querySelector('#price');
-  // let description   = document.querySelector('#description');
-  let colors    = document.querySelector('#colors');
+  let itemImage     = document.querySelector('.item__img');
+  let img           = document.createElement('img');
+  let title         = document.querySelector('#title');
+  let price         = document.querySelector('#price');
+  let description   = document.querySelector('#description');
+  let colors        = document.querySelector('#colors');
 
   // PERSONNALIZE ELEMENT
   img.src                 = data.imageUrl;
