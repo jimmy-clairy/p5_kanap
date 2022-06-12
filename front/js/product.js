@@ -17,7 +17,7 @@ fetch('http://localhost:3000/api/products/'+ idKanap)
 let product = {
   _id : idKanap
 }
-// FUNCTIONS START ************************************************************************
+
 // CREATE Item
 function createItem(data) {
   // SELECTED OR CREATE ELEMENT
@@ -93,62 +93,3 @@ addToCart.addEventListener("click", () => {
     }
   }
 })
-
-// SAVE ITEMS BASKET 
-function saveBasket(basket) {
-    localStorage.setItem("basket", JSON.stringify(basket));
-}
-
-// GET ITEMS BASKET 
-function getBasket() {
-    let basket = localStorage.getItem("basket");
-
-    if (basket == null){
-      return [];
-    } else {
-      return JSON.parse(basket);
-    }
-}
-
-// ADD ITEMS BASKET 
-function addBasket(product) {
-  let basket = getBasket();
-  // RESEARCH IF ID AND COLOR IDENTICAL
-  let foundProduct = basket.find(p => p._id+p.color == product._id+product.color);
-
-  if (foundProduct == undefined) {
-    basket.push(product);
-  } else {
-    foundProduct.quantity += product.quantity;
-  }
-  tryBasket(basket);
-  saveBasket(basket);
-}
-
-// TRY BASKET
-function tryBasket(tryBasket) {
-  tryBasket.sort(function compare(a, b) {
-    if (a._id < b._id)
-    return -1;
-    if (a._id > b._id)
-    return 1;
-    if (a._id = b._id) {
-      if (a.color < b.color)
-      return -1;
-      if (a.color > b.color)
-      return 1;
-    }
-    return 0;
-  });
-}
-
-// COMPARE PRODUCT
-function compare(product) {
-  let basket = getBasket();
-  // RESEARCH IF ID AND COLOR IDENTICAL
-  let foundProduct = basket.find(p => p._id+p.color == product._id+product.color);
-  if (foundProduct != undefined) {
-    return true
-  }
-}
-// FUNCTIONS END ************************************************************************
