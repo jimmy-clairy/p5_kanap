@@ -4,8 +4,9 @@ fetch('http://localhost:3000/api/products/')
     console.table(data);
     createItems(data);
 })
-.catch(() => {
-document.querySelector(".titles").innerHTML = "<h1>Erreur 404<br><br>Ressource non trouvée</h1>";
+.catch((e) => {
+    console.log(e);
+    document.querySelector(".titles").innerHTML = "<h1>Erreur 404<br><br>Ressource non trouvée</h1>";
 });
 
 function createItems(data) {

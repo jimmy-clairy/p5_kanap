@@ -1,5 +1,5 @@
 // RESEARCH IN URL ID KANAP
-const url = new URL(window.location);
+const url     = new URL(window.location);
 const idKanap = url.searchParams.get("_id");
 
 fetch('http://localhost:3000/api/products/'+ idKanap)

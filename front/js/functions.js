@@ -100,27 +100,27 @@ function removeFromBasket(product, articleCartItem) {
 
 // CHANGE QUANTITY 
 function changeQuantity(product, quantity, articleCartItem, input) {
-    let basket = getBasket();
-  
-    let foundProduct      = basket.find(p => p._id+p.color == product._id+product.color);
-    let foundProductOther = basketOther.find(p => p._id+p.color == product._id+product.color);
-  
-    if (foundProduct != undefined && foundProductOther != undefined) {
-      foundProduct.quantity       = quantity;
-      foundProductOther.quantity  = quantity;
-      saveBasket(basket);
-  
-      if (foundProduct.quantity <= 0 && foundProductOther.quantity <= 0) {
-        if (confirm("Quantité " +  quantity + " non accepter!\nVoulez-vous supprimer l'article ?\nOu annuler pour retourner a une quantité de 1.")) {
-          removeFromBasket(product, articleCartItem);
-        }else {
-          foundProduct.quantity       = 1;
-          foundProductOther.quantity  = 1;
-          input.value                 = 1;
-  
-          saveBasket(basket);
-        }
-      } 
-    }
+  let basket = getBasket();
+
+  let foundProduct      = basket.find(p => p._id+p.color == product._id+product.color);
+  let foundProductOther = basketOther.find(p => p._id+p.color == product._id+product.color);
+
+  if (foundProduct != undefined && foundProductOther != undefined) {
+    foundProduct.quantity       = quantity;
+    foundProductOther.quantity  = quantity;
+    saveBasket(basket);
+
+    if (foundProduct.quantity <= 0 && foundProductOther.quantity <= 0) {
+      if (confirm("Quantité " +  quantity + " non accepter!\nVoulez-vous supprimer l'article ?\nOu annuler pour retourner a une quantité de 1.")) {
+        removeFromBasket(product, articleCartItem);
+      }else {
+        foundProduct.quantity       = 1;
+        foundProductOther.quantity  = 1;
+        input.value                 = 1;
+
+        saveBasket(basket);
+      }
+    } 
+  }
 }
   
