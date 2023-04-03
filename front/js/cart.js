@@ -1,6 +1,6 @@
-let basket      = getBasket();
+let basket = getBasket();
 let basketOther = [];
-let cart        = document.querySelector(".cart");
+let cart = document.querySelector(".cart");
 
 // CHECK LENGTH BASKET
 if (basket.length === 0) {
@@ -10,31 +10,31 @@ if (basket.length === 0) {
 } else {
 
   fetch("http://localhost:3000/api/products")
-  .then(response => response.json())
-  .then(data => {
-    sortingBasket(data);
-  })
-  .catch((e) => {
-    console.log(e);
-    // cart.remove();
-    cart.style.display = "none";
-    document.querySelector("h1").innerHTML = "<h1>Erreur 404<br><br>Ressource non trouvée</h1>";
-  });
+    .then(response => response.json())
+    .then(data => {
+      sortingBasket(data);
+    })
+    .catch((e) => {
+      console.log(e);
+      // cart.remove();
+      cart.style.display = "none";
+      document.querySelector("h1").innerHTML = "<h1>Erreur 404<br><br>Ressource non trouvée</h1>";
+    });
 }
 
 // SORTING BASKET
 function sortingBasket(data) {
-  basketOther   = getBasket();
-  
+  basketOther = getBasket();
+
   for (let product of basketOther) {
     for (let i = 0; i < data.length; i++) {
       if (product._id === data[i]._id) {
-        
-        product.name          = data[i].name;
-        product.price         = data[i].price;
-        product.imageUrl      = data[i].imageUrl;
-        product.description   = data[i].description;
-        product.altTxt        = data[i].altTxt;
+
+        product.name = data[i].name;
+        product.price = data[i].price;
+        product.imageUrl = data[i].imageUrl;
+        product.description = data[i].description;
+        product.altTxt = data[i].altTxt;
       }
     }
   }
@@ -43,9 +43,9 @@ function sortingBasket(data) {
 
 // CREATE ITEMS
 function createItems(basketOther) {
-  
+
   for (const product of basketOther) {
-    
+
     let sectionCartItems = document.querySelector("#cart__items");
 
     let articleCartItem = document.createElement("article");
@@ -53,7 +53,7 @@ function createItems(basketOther) {
     articleCartItem.setAttribute("data-id", product._id);
     articleCartItem.setAttribute("data-color", product.color);
     sectionCartItems.append(articleCartItem);
-    
+
     let divCartItemImg = document.createElement("div");
     divCartItemImg.className = "cart__item__img";
     articleCartItem.append(divCartItemImg);
@@ -104,7 +104,7 @@ function createItems(basketOther) {
     input.max = 100;
     input.setAttribute("value", product.quantity);
     divCartItemContentSettingsQuantity.append(input);
-    
+
     let divCartItemContentSettingsDelete = document.createElement("div");
     divCartItemContentSettingsDelete.className = "cart__item__content__settings__delete";
     divCartItemContentSettings.append(divCartItemContentSettingsDelete);
@@ -120,81 +120,61 @@ function createItems(basketOther) {
       totalPriceBasket();
       totalPriceItem(pPrice, product);
     })
-    
-    pDeleteItems.addEventListener("click", ()=> {
+
+    pDeleteItems.addEventListener("click", () => {
       removeFromBasket(product, articleCartItem);
       totalQuantityBasket();
       totalPriceBasket();
     })
   }
   totalQuantityBasket();
-  totalPriceBasket(); 
+  totalPriceBasket();
 }
 
+function capitalizeFirstLetter(string) {
+  return string[0].toUpperCase() + string.slice(1);
+}
+
+function alertStyle(element, verif) {
+  console.dir(element);
+  const colorTrue = "white";
+  const colorFalse = "#ffb8b8";
+  if (verif) {
+    element.style.backgroundColor = colorTrue;
+    element.nextElementSibling.textContent = "";
+  } else {
+    element.nextElementSibling.textContent = `${capitalizeFirstLetter(element.name)} No Valid`;
+    element.style.backgroundColor = colorFalse;
+  }
+}
 // FORMULAIRE *********************************************************************************
 const form = document.querySelector(".cart__order__form");
-const colorTrue   = "white";
-const colorFalse  = "#ffb8b8";
-// FORM FIRST NAME ------------------------------------------------------
+// FORM FIRST NAME --------------------------------------------------------
 form.firstName.addEventListener("input", () => {
-  testFirstName = /^[A-Za-z][A-Za-z\é\è\ê\ë\ä\à\ï\ç\ \-]+$/.test(firstName.value);
-
-  if (testFirstName) {
-    firstName.style.backgroundColor = colorTrue;
-    document.querySelector("#firstNameErrorMsg").textContent = "";
-  }else{
-    document.querySelector("#firstNameErrorMsg").textContent = "Prénom Non Valide";
-    firstName.style.backgroundColor = colorFalse;
-  }
+  testFirstName = /^[A-Za-z][A-Za-z\é\è\ê\ë\ä\à\ï\ç\ \-]+$/.test(firstName.value.trim());
+  alertStyle(firstName, testFirstName)
 })
-// FORM LAST NAME --------------------------------------------------------
+// FORM LAST NAME ---------------------------------------------------------
 form.lastName.addEventListener("input", () => {
-  testLastName = /^[A-Za-z][A-Za-z\é\è\ê\ë\ä\à\ï\ç\ \-]+$/.test(lastName.value);
-
-  if (testLastName) {
-    lastName.style.backgroundColor = colorTrue;
-    document.querySelector("#lastNameErrorMsg").textContent = "";
-  }else{
-    document.querySelector("#lastNameErrorMsg").textContent = "Nom Non Valide";
-    lastName.style.backgroundColor = colorFalse;
-  }
+  testLastName = /^[A-Za-z][A-Za-z\é\è\ê\ë\ä\à\ï\ç\ \-]+$/.test(lastName.value.trim());
+  alertStyle(lastName, testLastName)
 })
-// FORM ADDRESS ----------------------------------------------------------
+// FORM ADDRESS -----------------------------------------------------------
 form.address.addEventListener("input", () => {
-  testAddress = /^[A-Za-z0-9\é\è\ê\ë\ä\à\ï\ç\ \,\'\-]+$/.test(address.value);
-  
-  if (testAddress) {
-    address.style.backgroundColor = colorTrue;
-    document.querySelector("#addressErrorMsg").textContent = "";
-  }else{
-    document.querySelector("#addressErrorMsg").textContent = "Adresse Non Valide";
-    address.style.backgroundColor = colorFalse;
-  }
+  testAddress = /^[A-Za-z0-9\é\è\ê\ë\ä\à\ï\ç\ \,\'\-]+$/.test(address.value.trim());
+  alertStyle(address, testAddress)
 })
 // FORM CITY --------------------------------------------------------------
 form.city.addEventListener("input", () => {
-  testCity = /^[A-Za-z][A-Za-z\é\è\ê\ë\ä\à\ï\ç\ \-]+$/.test(city.value);
-  
-  if (testCity) {
-    city.style.backgroundColor = colorTrue;
-    document.querySelector("#cityErrorMsg").textContent = "";
-  }else{
-    document.querySelector("#cityErrorMsg").textContent = "Ville Non Valide";
-    city.style.backgroundColor = colorFalse;
-  }
+  testCity = /^[A-Za-z][A-Za-z\é\è\ê\ë\ä\à\ï\ç\ \-]+$/.test(city.value.trim());
+  alertStyle(city, testCity)
 })
 // FORM EMAIL --------------------------------------------------------------
 form.email.addEventListener("input", () => {
-  testEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email.value);
-  
-  if (testEmail) {
-    email.style.backgroundColor = colorTrue;
-    document.querySelector("#emailErrorMsg").textContent = "";
-  }else{
-    document.querySelector("#emailErrorMsg").textContent = "Email Non Valide";
-    email.style.backgroundColor = colorFalse;
-  }
+  testEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email.value.trim());
+  alertStyle(email, testEmail)
 })
+
 // ORDER FINAL -------------------------------------------------------------
 let orderFinal;
 let productId = [];
@@ -202,35 +182,35 @@ let productId = [];
 form.addEventListener("submit", (e) => {
   e.preventDefault()
   // CHECK IF ALL TRUE
-  if(testFirstName && testLastName && testAddress && testCity && testEmail ){
-    
+  if (testFirstName && testLastName && testAddress && testCity && testEmail) {
+
     for (const product of basket) {
       productId.push(product._id)
     }
-    
+
     orderFinal = {
-      contact : {
-      firstName : firstName.value,
-      lastName  : lastName.value,
-      address   : address.value,
-      city      : city.value,
-      email     : email.value
+      contact: {
+        firstName: firstName.value,
+        lastName: lastName.value,
+        address: address.value,
+        city: city.value,
+        email: email.value
       },
-      products  : productId
+      products: productId
     };
 
     fetch("http://localhost:3000/api/products/order", {
       method: "POST",
-	    headers: { 
-      'Accept': 'application/json', 
-      'Content-Type': 'application/json' 
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
       },
-	    body: JSON.stringify(orderFinal)
+      body: JSON.stringify(orderFinal)
     })
-    .then(response => response.json())
-    .then(data => {
-      window.location = "confirmation.html?orderId=" + data.orderId; 
-    });
+      .then(response => response.json())
+      .then(data => {
+        window.location = "confirmation.html?orderId=" + data.orderId;
+      });
     localStorage.clear(basket);
 
   } else {
