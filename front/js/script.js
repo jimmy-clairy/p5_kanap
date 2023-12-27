@@ -1,39 +1,51 @@
-fetch('http://localhost:3000/api/products/')
-.then(reponse => reponse.json())
-.then(data => {
-    console.table(data);
-    createItems(data);
-})
-.catch((e) => {
-    console.log(e);
-    document.querySelector(".titles").innerHTML = "<h1>Erreur 404<br><br>Ressource non trouvée</h1>";
-});
+const fetchData = async (url) => {
+    try {
+        const res = await fetch(url)
+        if (!res.ok) {
+            throw new Error('Problème serveur')
+        }
+        const data = await res.json()
+        console.table(data);
+        createItems(data);
+    } catch (error) {
+        console.error(error);
+        document.querySelector(".titles").innerHTML = "<h1 class='error'>Erreur 404<br><br>Ressource non trouvée</h1>";
+    }
 
+}
+
+/**
+ * Crée des éléments HTML à partir des données de produits et les ajoute au conteneur spécifié.
+ * @param {Array} data - Les données des produits.
+ */
 function createItems(data) {
-    // CREATE ITEMS WITH A LOOP FOR OF
-    for (const kanap of data) {
+    const itemsContainer = document.querySelector('#items');
 
-        // CREATE ELEMENT
-        let a       = document.createElement('a');
-        let article = document.createElement('article');
-        let img     = document.createElement('img');
-        let h3      = document.createElement('h3');
-        let p       = document.createElement('p');
+    for (const product of data) {
 
-        // PERSONNALIZE ELEMENT
-        a.href          = "product.html?_id=" + kanap._id;
 
-        img.src         = kanap.imageUrl;
-        img.alt         = kanap.altTxt;
-        img.title       = kanap.altTxt;
+        const productLink = document.createElement('a');
+        productLink.href = "product.html?_id=" + product._id;
 
-        h3.textContent  = kanap.name;
+        const productArticle = document.createElement('article');
 
-        p.textContent   = kanap.description;
+        const productImg = document.createElement('img');
+        productImg.src = product.imageUrl;
+        productImg.alt = product.altTxt;
+        productImg.title = product.altTxt;
 
-        // ADD ELEMENT
-        items.append(a);
-        a.append(article);
-        article.append(img, h3, p);
+        const productName = document.createElement('h3');
+        productName.textContent = product.name;
+
+        const productDescription = document.createElement('p');
+        productDescription.className = 'productDescription';
+        productDescription.textContent = product.description;
+
+
+        itemsContainer.append(productLink);
+        productLink.append(productArticle);
+        productArticle.append(productImg, productName, productDescription);
     }
 }
+
+fetchData('http://localhost:3000/api/products/')
