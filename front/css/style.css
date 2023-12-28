@@ -138,8 +138,8 @@ main {
 	background-color: var(--main-color);
 }
 
-/*Title*/
-.titles .error {
+/*Error*/
+.error {
 	color: crimson;
 }
 

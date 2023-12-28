@@ -2,8 +2,19 @@ import { fetchData } from "./functions/functions.js";
 
 const apiUrl = 'http://localhost:3000/api/products/'
 
+/**
+ * Asynchronously fetches data from the specified API endpoint and calls the createItems function.
+ * Handles errors by displaying an error message and logging the error to the console.
+ * @async
+ * @function
+ * @returns {Promise<void>}
+ */
 const getData = async () => {
     try {
+        /**
+         * The retrieved data from the API.
+         * @type {Object[]}
+         */
         const data = await fetchData(apiUrl);
         createItems(data)
     } catch (error) {
@@ -13,6 +24,12 @@ const getData = async () => {
 }
 getData()
 
+/**
+ * Creates HTML elements for each product and appends them to the items container.
+ * @param {Object[]} data - The product data to display.
+ * @function
+ * @returns {void}
+ */
 function createItems(data) {
     const itemsContainer = document.querySelector('#items');
 

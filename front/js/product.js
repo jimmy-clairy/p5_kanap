@@ -1,95 +1,122 @@
-// RESEARCH IN URL ID KANAP
-const url     = new URL(window.location);
-const idKanap = url.searchParams.get("_id");
+import { fetchData, saveBasket, getBasket } from './functions/functions.js'
 
-fetch('http://localhost:3000/api/products/'+ idKanap)
-.then(reponse => reponse.json())
-.then(data => {
-  createItem(data);
-})
-.catch((e) => {
-  console.log(e);
-  document.querySelector("article").remove();
-  document.querySelector(".item").innerHTML = "<h1>Erreur 404<br><br>Ressource non trouvée</h1>";
+const url = new URL(window.location);
+const id = url.searchParams.get("_id");
+
+const apiUrl = `http://localhost:3000/api/products/${id}`
+
+
+const getData = async () => {
+  try {
+    /**
+     * The retrieved data from the API.
+     * @type {Object[]}
+     */
+    const data = await fetchData(apiUrl);
+    document.querySelector('title').textContent = data.name
+    createItem(data)
+  } catch (error) {
+    document.querySelector("article").remove();
+    document.querySelector(".item").innerHTML = "<h1 class='error'>Erreur 404<br><br>Ressource non trouvée</h1>";
+    console.error('Error fetching data:', error)
+  }
+}
+getData()
+
+const product = {
+  id,
+  color: '',
+  quantity: 0
+}
+
+function createItem(data) {
+  const itemImage = document.querySelector('.item__img');
+
+  const productImg = document.createElement('img');
+  productImg.src = data.imageUrl;
+  productImg.alt = data.altTxt;
+  productImg.title = data.altTxt;
+
+  const productTitle = document.querySelector('#title');
+  productTitle.textContent = data.name;
+
+  const productPrice = document.querySelector('#price');
+  productPrice.textContent = data.price;
+
+  const productDescription = document.querySelector('#description');
+  productDescription.textContent = data.description;
+
+  const productColors = document.querySelector('#colorsSelect');
+
+  for (const color of data.colors) {
+
+    const optionColor = document.createElement('option');
+
+    optionColor.textContent = color;
+    optionColor.value = color;
+
+    productColors.append(optionColor);
+  }
+
+  itemImage.append(productImg);
+}
+
+const colorsSelect = document.querySelector('#colorsSelect');
+colorsSelect.addEventListener('change', (e) => {
+  product.color = e.target.value;
 });
 
-// CREATE OBJET PRODUCT
-let product = {
-  _id : idKanap
-}
 
-// CREATE Item
-function createItem(data) {
-  // SELECTED OR CREATE ELEMENT
-  let itemImage     = document.querySelector('.item__img');
-  let img           = document.createElement('img');
-  let title         = document.querySelector('#title');
-  let price         = document.querySelector('#price');
-  let description   = document.querySelector('#description');
-  let colors        = document.querySelector('#colors');
+const productQuantity = document.querySelector('#itemQuantity');
+productQuantity.addEventListener('change', (e) => {
+  product.quantity = Number(e.target.value);
+});
 
-  // PERSONNALIZE ELEMENT
-  img.src                 = data.imageUrl;
-  img.alt                 = data.altTxt;
-  img.title               = data.altTxt;
 
-  title.textContent       = data.name;
-
-  price.textContent       = data.price;
-
-  description.textContent = data.description;
-
-  // ADD ELEMENT
-  itemImage.append(img);
-
-  // BOUCLE FOR OF CREATE EACH COLOR
-  for (const color of data.colors) {
-    
-    // CREATE ELEMENT
-    let optionColor = document.createElement('option');
-    // PERSONNALIZE ELEMENT
-    optionColor.textContent = color;
-    optionColor.value       = color;
-    // ADD ELEMENT
-    colors.append(optionColor);
-  }
-}
-
-// LITENER COLORS
-colors.addEventListener("change", ()=>{ 
-  product.color         = colors.value;
-  addToCart.style.color = "white";
-  addToCart.textContent = "Ajouter au panier";
+const addToCart = document.querySelector('#addToCart');
+addToCart.addEventListener('click', () => {
+  checkSetColorAndNumber(product)
 })
 
-// LISTENER QUANTITY
-quantity.addEventListener("change", () => {
-  product.quantity      = Number(quantity.value);
-  addToCart.style.color = "white";
-  addToCart.textContent = "Ajouter au panier";
-})
+/**
+ * Checks the color and quantity conditions before adding the product to the basket.
+ * @param {Product} product - The product to be added to the basket.
+ */
+const checkSetColorAndNumber = (product) => {
+  const { color, quantity } = product;
 
-// LISTENER ADD TO CART
-addToCart.addEventListener("click", () => {
-  if (product.color === undefined || product.color === "" || product.quantity === undefined || product.quantity > 100 || product.quantity < 1){
-    alert("Veuillez sélectioner une couleur\n ou choisir une quantité entre 1 - 100 articles.");
-  }else {
-    
-    if (compare(product)) {
-      
-      if (confirm("Article de même couleur déjà au panier !\n\n Voulez-vous confirmer ou annuler ?")) {
-        addBasket(product);
-        addToCart.style.color = "lightgreen";
-        addToCart.textContent = "L'article a été ajouter au panier";
-      } else {
-        addToCart.style.color = "red";
-        addToCart.textContent = "L'article a été annuler";
-      }
+  if (color === "" || quantity <= 0 || quantity >= 101) {
+    let errorMessage = '';
 
+    if (color === "") {
+      errorMessage = 'Veuillez choisir une couleur';
+    } else if (quantity <= 0) {
+      errorMessage = 'Veuillez choisir un nombre supérieur à zéro';
+    } else if (quantity >= 100) {
+      errorMessage = 'Veuillez choisir un nombre inférieur à 100';
     } else {
-      addBasket(product);
-      addToCart.style.color = "lightgreen";
-      addToCart.textContent = "L'article a été ajouter au panier";
+      errorMessage = 'Veuillez remplir tous les champs';
     }
+
+    alert(errorMessage);
+  } else {
+    addBasket(product);
   }
-})
+};
+
+/**
+ * Adds the product to the basket and updates the basket storage.
+ * @param {product} product - The product to be added to the basket.
+ */
+const addBasket = (product) => {
+  const basket = getBasket()
+  const findProduct = basket.find(b => b.id === product.id && b.color === product.color)
+
+  if (findProduct === undefined) {
+    basket.push(product)
+  } else if (confirm('Même produit et même couleur voulait vous ajouter au panier')) {
+    findProduct.quantity += product.quantity
+  }
+
+  saveBasket(basket)
+}
