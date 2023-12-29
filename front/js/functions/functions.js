@@ -7,20 +7,12 @@
  */
 export const fetchData = async (url) => {
     try {
-        /**
-         * The response from the fetch request.
-         * @type {Response}
-         */
         const response = await fetch(url);
 
         if (!response.ok) {
             throw new Error('Server problem: ' + response.status);
         }
 
-        /**
-         * The retrieved JSON data.
-         * @type {Object}
-         */
         const data = await response.json();
 
         return data;
@@ -31,33 +23,35 @@ export const fetchData = async (url) => {
     }
 };
 
-// SAVE ITEMS BASKET 
-export function saveBasket(basket) {
-    localStorage.setItem("basket", JSON.stringify(basket));
-}
+/**
+* Saves the basket to local storage by converting it to a JSON string.
+* @param {Product[]} basket - The basket of products to be saved.
+*/
+export const saveBasket = (basket) => {
+    /**
+     * Convert the basket to a JSON string.
+     * @type {string}
+     */
+    const basketJSON = JSON.stringify(basket);
 
-// GET ITEMS BASKET 
-export function getBasket() {
+    // Save the JSON string to local storage
+    localStorage.setItem("basket", basketJSON);
+};
+
+/**
+ * Retrieves the current basket from localStorage.
+ * @returns {Product[]} An array representing the current basket.
+ */
+export const getBasket = () => {
+    /**
+     * The basket data retrieved from localStorage.
+     * @type {string | null}
+     */
     const basket = localStorage.getItem("basket");
 
-    if (basket == null) {
-        return [];
-    } else {
-        return JSON.parse(basket);
-    }
-}
-
-// ADD ITEMS BASKET 
-export function addBasket(product) {
-    console.log(product);
-    const basket = getBasket();
-    // RESEARCH IF ID AND COLOR IDENTICAL
-    const foundProduct = basket.find(b => b._id + b.color == product._id + product.color);
-
-    if (foundProduct === undefined) {
-        basket.push(product);
-    } else {
-        foundProduct.quantity += product.quantity;
-    }
-    saveBasket(basket);
-}
+    /**
+     * Parses the basket data as JSON or returns an empty array if null.
+     * @type {Product[]}
+     */
+    return basket === null ? [] : JSON.parse(basket);
+};
