@@ -216,3 +216,102 @@ function updateTotalArticlesAndPrice() {
     document.getElementById('totalPrice').textContent = totalPrice
     document.getElementById('totalQuantity').textContent = totalArticles
 }
+
+// Formulaire
+const fields = [
+    {
+        name: 'firstName',
+        element: document.getElementById('firstName'),
+        regex: /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/,
+        validate: false,
+        errorMessage: 'Le prénom doit contenir uniquement des lettres.'
+    },
+    {
+        name: 'lastName',
+        element: document.getElementById('lastName'),
+        regex: /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/,
+        validate: false,
+        errorMessage: 'Le nom doit contenir uniquement des lettres.'
+    },
+    {
+        name: 'address',
+        element: document.getElementById('address'),
+        regex: /^[0-9A-Za-zÀ-ÖØ-öø-ÿ\s,'-]+$/u,
+        validate: false,
+        errorMessage: 'Adresse invalide.'
+    },
+    {
+        name: 'city',
+        element: document.getElementById('city'),
+        regex: /^[A-Za-z]+(?:[\s-][A-Za-z]+)*$/,
+        validate: false,
+        errorMessage: 'Ville invalide.'
+    },
+    {
+        name: 'email',
+        element: document.getElementById('email'),
+        regex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        validate: false,
+        errorMessage: 'Email invalide.'
+    }
+];
+
+fields.forEach(field => {
+    field.element.addEventListener('input', (e) => checkRegex(e, field));
+});
+
+function checkRegex(e, field) {
+    const element = e.target;
+    const msgError = element.nextElementSibling;
+
+    const isValid = field.regex.test(element.value);
+    field.validate = isValid;
+    field.value = element.value;
+
+    msgError.textContent = isValid ? '' : field.errorMessage;
+}
+
+
+const btnOrder = document.getElementById('order')
+btnOrder.addEventListener('click', (e) => {
+    e.preventDefault()
+    const allFieldsValid = fields.every(field => field.validate)
+
+    if (allFieldsValid) {
+        fetch("http://localhost:3000/api/products/order", {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(createObjetForSend())
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                window.location = "confirmation.html?orderId=" + data.orderId;
+            });
+
+
+    } else {
+        console.log("Au moins une propriété 'validate' n'est pas à true.");
+    }
+})
+
+function createObjetForSend(params) {
+    let products = [];
+    const basket = getBasket()
+    for (const product of basket) {
+        products.push(product.id)
+    }
+    // console.log(basket);
+    const contact = {
+        firstName: fields[0].value,
+        lastName: fields[1].value,
+        address: fields[2].value,
+        city: fields[3].value,
+        email: fields[4].value
+    }
+    // console.log(contact);
+    return { products, contact }
+}
