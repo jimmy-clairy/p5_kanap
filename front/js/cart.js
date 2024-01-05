@@ -37,6 +37,7 @@ function start() {
     handleBtnDelete()
     handleChangeQuantity()
     updateTotalArticlesAndPrice()
+    handleForm()
 }
 start()
 
@@ -218,100 +219,76 @@ function updateTotalArticlesAndPrice() {
 }
 
 // Formulaire
-const fields = [
-    {
-        name: 'firstName',
-        element: document.getElementById('firstName'),
+const contact = {
+    firstName: {
         regex: /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/,
-        validate: false,
-        errorMessage: 'Le prénom doit contenir uniquement des lettres.'
+        msgError: "Le prénom doit contenir uniquement des lettres."
     },
-    {
-        name: 'lastName',
-        element: document.getElementById('lastName'),
+    lastName: {
         regex: /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/,
-        validate: false,
-        errorMessage: 'Le nom doit contenir uniquement des lettres.'
+        msgError: "Le nom doit contenir uniquement des lettres."
     },
-    {
-        name: 'address',
-        element: document.getElementById('address'),
+    address: {
         regex: /^[0-9A-Za-zÀ-ÖØ-öø-ÿ\s,'-]+$/u,
-        validate: false,
-        errorMessage: 'Adresse invalide.'
+        msgError: "Adresse invalide."
     },
-    {
-        name: 'city',
-        element: document.getElementById('city'),
+    city: {
         regex: /^[A-Za-z]+(?:[\s-][A-Za-z]+)*$/,
-        validate: false,
-        errorMessage: 'Ville invalide.'
+        msgError: "Ville invalide."
     },
-    {
-        name: 'email',
-        element: document.getElementById('email'),
-        regex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-        validate: false,
-        errorMessage: 'Email invalide.'
+    email: {
+        regex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+        msgError: "Email invalide."
     }
-];
+};
 
-fields.forEach(field => {
-    field.element.addEventListener('input', (e) => checkRegex(e, field));
-});
+function handleForm() {
+    const form = document.querySelector('.cart__order__form')
+    form.addEventListener('input', setValueAndShowError)
 
-function checkRegex(e, field) {
-    const element = e.target;
-    const msgError = element.nextElementSibling;
-
-    const isValid = field.regex.test(element.value);
-    field.validate = isValid;
-    field.value = element.value;
-
-    msgError.textContent = isValid ? '' : field.errorMessage;
+    const btnOrder = document.getElementById('order')
+    btnOrder.addEventListener('click', (e) => {
+        e.preventDefault()
+        if (checkAllValidates()) {
+            console.log('Yes');
+        } else {
+            console.log('No');
+        }
+    })
 }
 
+function setValueAndShowError(e) {
+    const target = e.target
+    const targetNext = target.nextElementSibling
+    const value = target.value.trim()
+    const contactKey = contact[target.name]
 
-const btnOrder = document.getElementById('order')
-btnOrder.addEventListener('click', (e) => {
-    e.preventDefault()
-    const allFieldsValid = fields.every(field => field.validate)
+    // //Mise a jour des inputs contact
+    contactKey.value = value
 
-    if (allFieldsValid) {
-        fetch("http://localhost:3000/api/products/order", {
-            method: "POST",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(createObjetForSend())
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data)
-                window.location = "confirmation.html?orderId=" + data.orderId;
-            });
-
-
+    if (contactKey.regex.test(value)) {
+        contactKey.validate = true
+        targetNext.textContent = ""
     } else {
-        console.log("Au moins une propriété 'validate' n'est pas à true.");
+        contactKey.validate = false
+        targetNext.textContent = value.length === 0 ? 'Veulliez remplir le champ' : contactKey.msgError
     }
-})
-
-function createObjetForSend(params) {
-    let products = [];
-    const basket = getBasket()
-    for (const product of basket) {
-        products.push(product.id)
-    }
-    // console.log(basket);
-    const contact = {
-        firstName: fields[0].value,
-        lastName: fields[1].value,
-        address: fields[2].value,
-        city: fields[3].value,
-        email: fields[4].value
-    }
-    // console.log(contact);
-    return { products, contact }
 }
+
+/**
+ * Checks if all fields have been validated.
+ * @returns {boolean} True if all fields are validated, otherwise False.
+ */
+function checkAllValidates() {
+    const arrayAllValidate = []
+    for (const key in contact) {
+        if (contact.hasOwnProperty.call(contact, key)) {
+            const element = contact[key];
+            arrayAllValidate.push(element.validate)
+        }
+    }
+    return arrayAllValidate.every(v => v)
+}
+// function checkAllValidates() {
+//     return Object.values(contact).every(field => field.validate);
+// }
