@@ -218,8 +218,13 @@ function updateTotalArticlesAndPrice() {
     document.getElementById('totalQuantity').textContent = totalArticles
 }
 
+
+
+
+
+
 // Formulaire
-const contact = {
+const contactObject = {
     firstName: {
         regex: /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/,
         msgError: "Le prénom doit contenir uniquement des lettres."
@@ -250,18 +255,51 @@ function handleForm() {
     btnOrder.addEventListener('click', (e) => {
         e.preventDefault()
         if (checkAllValidates()) {
-            console.log('Yes');
+            postData('http://localhost:3000/api/products/order', createObjetForSend())
+                .then((data) => {
+                    document.location = `confirmation.html?orderId=${data.orderId}`
+                    localStorage.clear()
+                }).catch((e) => console.error(e))
+
         } else {
-            console.log('No');
+            alert('Veulliez remplir tous les champs')
         }
     })
+}
+
+// Exemple d'implémentation pour une requête POST
+async function postData(url = "", data = {}) {
+    // Les options par défaut sont indiquées par *
+    const response = await fetch(url, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data), // le type utilisé pour le corps doit correspondre à l'en-tête "Content-Type"
+    });
+    return response.json(); // transforme la réponse JSON reçue en objet JavaScript natif
+}
+
+function createObjetForSend() {
+    const basket = getBasket()
+    const products = basket.map(b => b.id)
+
+    const contact = {
+        firstName: contactObject.firstName.value,
+        lastName: contactObject.lastName.value,
+        address: contactObject.address.value,
+        city: contactObject.city.value,
+        email: contactObject.email.value,
+    }
+
+    return { contact, products }
 }
 
 function setValueAndShowError(e) {
     const target = e.target
     const targetNext = target.nextElementSibling
     const value = target.value.trim()
-    const contactKey = contact[target.name]
+    const contactKey = contactObject[target.name]
 
     // //Mise a jour des inputs contact
     contactKey.value = value
@@ -281,9 +319,9 @@ function setValueAndShowError(e) {
  */
 function checkAllValidates() {
     const arrayAllValidate = []
-    for (const key in contact) {
-        if (contact.hasOwnProperty.call(contact, key)) {
-            const element = contact[key];
+    for (const key in contactObject) {
+        if (contactObject.hasOwnProperty.call(contactObject, key)) {
+            const element = contactObject[key];
             arrayAllValidate.push(element.validate)
         }
     }
