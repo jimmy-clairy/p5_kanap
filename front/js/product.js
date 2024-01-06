@@ -39,6 +39,7 @@ function createItem(data) {
 
   const productTitle = document.querySelector('#title');
   productTitle.textContent = data.name;
+  product.name = data.name;
 
   const productPrice = document.querySelector('#price');
   productPrice.textContent = data.price;
@@ -101,6 +102,7 @@ const checkSetColorAndNumber = (product) => {
     alert(errorMessage);
   } else {
     addBasket(product);
+    openPopup()
   }
 };
 
@@ -119,4 +121,29 @@ const addBasket = (product) => {
   }
 
   saveBasket(basket)
+}
+const containerPopup = document.querySelector('.container__popup')
+
+// Fonction pour créer et afficher le popup
+function openPopup() {
+  // Créer les éléments du popup en JavaScript
+  const popup = document.createElement('div');
+  popup.className = 'popup';
+  popup.id = 'popup';
+
+  const popupTitle = document.createElement('h3');
+  popupTitle.innerHTML = `Produit ajouté<br> ${product.name}`;
+
+  const popupContent = document.createElement('p');
+  popupContent.innerHTML = `Quantité ${product.quantity}<br>Couleur ${product.color}`;
+
+  const closeButton = document.createElement('button');
+  closeButton.textContent = 'Fermer';
+  closeButton.addEventListener('click', () => popup.remove())
+
+  // Ajouter les éléments au DOM
+  containerPopup.appendChild(popup);
+  popup.append(popupTitle, popupContent, closeButton);
+
+  setTimeout(() => popup.remove(), 4000)
 }
