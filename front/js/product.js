@@ -37,6 +37,7 @@ const handleDataFetchError = () => {
  * @param {Object} data - The product data.
  */
 function createItem(data) {
+  product.name = data.name
   const itemImage = document.querySelector('.item__img');
 
   const productImg = document.createElement('img');
